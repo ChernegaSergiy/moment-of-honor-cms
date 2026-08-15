@@ -31,10 +31,11 @@ media.post('/', async (c) => {
   const token = c.get('installationToken');
 
   const form = await c.req.formData();
-  const file = form.get('file');
+  const fileEntry = form.get('file');
   const kind = form.get('kind');
 
-  if (!(file instanceof File)) {
+  const file = fileEntry as File | null;
+  if (!file || typeof file === 'string' || typeof file.arrayBuffer !== 'function') {
     return c.json({ error: '"file" field is required' }, 400);
   }
   if (typeof kind !== 'string' || !ALLOWED_KINDS.has(kind)) {
