@@ -18,11 +18,11 @@ export async function createSessionCookie(session: AuthorSession, secret: string
   const payload = base64UrlEncode(new TextEncoder().encode(JSON.stringify(session)));
   const value = await signPayload(payload, secret);
 
-  return `${COOKIE_NAME}=${value}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${MAX_AGE_SECONDS}`;
+  return `${COOKIE_NAME}=${value}; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=${MAX_AGE_SECONDS}`;
 }
 
 export function clearSessionCookie(): string {
-  return `${COOKIE_NAME}=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0`;
+  return `${COOKIE_NAME}=; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=0`;
 }
 
 export async function readSession(cookieHeader: string | null, secret: string): Promise<AuthorSession | null> {
