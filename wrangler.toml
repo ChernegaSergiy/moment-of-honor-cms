@@ -17,6 +17,6 @@ id = "REPLACE_WITH_KV_NAMESPACE_ID"
 #   SESSION_SECRET             - Secret used to sign author session cookies
 
 [vars]
-CONTENT_REPO_OWNER = "REPLACE_WITH_ORG_OR_USER"
+CONTENT_REPO_OWNER = "ChernegaSergiy"
 CONTENT_REPO_NAME = "moment-of-honor-content"
 CONTENT_REPO_BRANCH = "main"
