@@ -129,3 +129,7 @@ CI (`.github/workflows/ci.yml`) runs typecheck and tests on every pull request. 
 ## Reliability
 
 "Хвилина мовчання" caches the last successfully fetched feed locally and falls back to it if `/feed.json` is unreachable. The core minute-of-silence functionality of the desktop application never depends on this service being available.
+
+## License
+
+This project is licensed under the CSSM Unlimited License v2.0 (CSSM-ULv2). See the [LICENSE](LICENSE) file for details.
