@@ -1,5 +1,8 @@
 # Moment of Honor CMS
 
+[![CI](https://github.com/ChernegaSergiy/moment-of-honor-cms/actions/workflows/ci.yml/badge.svg)](https://github.com/ChernegaSergiy/moment-of-honor-cms/actions/workflows/ci.yml)
+[![Deploy](https://github.com/ChernegaSergiy/moment-of-honor-cms/actions/workflows/deploy.yml/badge.svg)](https://github.com/ChernegaSergiy/moment-of-honor-cms/actions/workflows/deploy.yml)
+
 Serverless API and GitHub App backend for **Moment of Honor**, the content system behind the "Головна" feed in the "Хвилина мовчання" ("Minute of Silence") desktop application.
 
 GitHub stores content, a GitHub App controls author access, this Worker isolates GitHub from the client, and the desktop app consumes a plain JSON feed.
