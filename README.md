@@ -14,7 +14,7 @@ Authors ── GitHub OAuth ──▶ This Worker ── GitHub App ──▶ mo
                             GET /feed.json ──▶ «Хвилина мовчання»
 ```
 
-Content itself — posts, stories, media, and the generated `feed.json` — lives in the separate [`moment-of-honor-content`](../moment-of-honor-content) repository, which this Worker reads from and writes to via the GitHub Contents API.
+Content itself — posts, stories, media, and the generated `feed.json` — lives in the separate [`moment-of-honor-content`](https://github.com/ChernegaSergiy/moment-of-honor-content) repository, which this Worker reads from and writes to via the GitHub Contents API.
 
 ## Why a GitHub App, not a personal access token
 
