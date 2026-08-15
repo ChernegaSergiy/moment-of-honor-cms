@@ -56,7 +56,7 @@ export async function readSession(cookieHeader: string | null, secret: string): 
   const match = cookieHeader.match(new RegExp(`${COOKIE_NAME}=([^;]+)`));
   if (!match) return null;
 
-  const [payload, signature] = match[1].split('.');
+  const [payload, signature] = (match[1] ?? '').split('.');
   if (!payload || !signature) return null;
 
   const key = await hmacKey(secret);
