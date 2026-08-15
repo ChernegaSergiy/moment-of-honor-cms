@@ -162,6 +162,8 @@ CI (`.github/workflows/ci.yml`) runs typecheck and tests on every pull request. 
 - Installation access tokens are cached in KV only for their GitHub-issued lifetime and are never exposed outside this Worker.
 - Webhook requests are rejected unless their `X-Hub-Signature-256` verifies against `GITHUB_WEBHOOK_SECRET`.
 - `/api/*` is rate limited per source IP; `/feed.json` relies on edge caching rather than per-request GitHub calls.
+- Credentialed cross-origin access is limited to origins in `ALLOWED_ORIGINS`; every other origin gets no CORS headers and can't read a response even if it guesses correctly. See [Cross-origin clients (CORS)](#cross-origin-clients-cors).
+- `return_to` in the OAuth flow is signed and origin-checked against `ALLOWED_ORIGINS`, so it can't be turned into an open redirect.
 
 ## Reliability
 
