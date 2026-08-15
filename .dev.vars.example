@@ -1,0 +1,10 @@
+# Copy this file to .dev.vars (already gitignored) and fill in real values
+# for local development with `wrangler dev`. In production these are set as
+# Worker secrets via `wrangler secret put <NAME>`, never committed.
+
+GITHUB_APP_ID=
+GITHUB_APP_PRIVATE_KEY=
+GITHUB_APP_CLIENT_ID=
+GITHUB_APP_CLIENT_SECRET=
+GITHUB_WEBHOOK_SECRET=
+SESSION_SECRET=
