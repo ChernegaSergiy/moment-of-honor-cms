@@ -11,4 +11,7 @@ export interface Env {
   CONTENT_REPO_OWNER: string;
   CONTENT_REPO_NAME: string;
   CONTENT_REPO_BRANCH: string;
+
+  /** Comma-separated list of origins allowed to make credentialed cross-origin requests. */
+  ALLOWED_ORIGINS: string;
 }
