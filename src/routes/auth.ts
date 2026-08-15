@@ -132,6 +132,14 @@ auth.get('/github/callback', async (c) => {
   );
 
   c.header('Set-Cookie', cookie);
+
+  if (state?.returnTo) {
+    const redirectUrl = new URL(state.returnTo);
+    redirectUrl.searchParams.set('authenticated', 'true');
+    redirectUrl.searchParams.set('login', user.login);
+    return c.redirect(redirectUrl.toString(), 302);
+  }
+
   return c.json({ authenticated: true, login: user.login });
 });
 
