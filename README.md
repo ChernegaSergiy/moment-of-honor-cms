@@ -1,13 +1,8 @@
 # Moment of Honor CMS
 
-Serverless API and GitHub App backend for **Moment of Honor**, the content
-system behind the "Головна" feed in the "Хвилина мовчання" ("Minute of
-Silence") desktop application.
+Serverless API and GitHub App backend for **Moment of Honor**, the content system behind the "Головна" feed in the "Хвилина мовчання" ("Minute of Silence") desktop application.
 
-This repository implements [RFC 0001 — Moment of Honor CMS](docs/RFC-0001-Moment-of-Honor-CMS.md):
-GitHub stores content, a GitHub App controls author access, this Worker
-isolates GitHub from the client, and the desktop app consumes a plain
-JSON feed.
+This repository implements [RFC 0001 — Moment of Honor CMS](docs/RFC-0001-Moment-of-Honor-CMS.md): GitHub stores content, a GitHub App controls author access, this Worker isolates GitHub from the client, and the desktop app consumes a plain JSON feed.
 
 ```text
 Authors ── GitHub OAuth ──▶ This Worker ── GitHub App ──▶ moment-of-honor-content
@@ -16,19 +11,11 @@ Authors ── GitHub OAuth ──▶ This Worker ── GitHub App ──▶ mo
                             GET /feed.json ──▶ «Хвилина мовчання»
 ```
 
-Content itself — posts, stories, media, and the generated `feed.json` — lives
-in the separate [`moment-of-honor-content`](../moment-of-honor-content)
-repository, which this Worker reads from and writes to via the GitHub
-Contents API.
+Content itself — posts, stories, media, and the generated `feed.json` — lives in the separate [`moment-of-honor-content`](../moment-of-honor-content) repository, which this Worker reads from and writes to via the GitHub Contents API.
 
 ## Why a GitHub App, not a personal access token
 
-The client and the CMS API never hold a long-lived GitHub credential.
-Authors sign in with standard GitHub OAuth only to prove they are
-collaborators on the content repository; every actual write uses a
-short-lived **installation access token** requested from the GitHub App,
-scoped to `Contents: Read & write` on that one repository. See
-[`src/lib/githubApp.ts`](src/lib/githubApp.ts).
+The client and the CMS API never hold a long-lived GitHub credential. Authors sign in with standard GitHub OAuth only to prove they are collaborators on the content repository; every actual write uses a short-lived **installation access token** requested from the GitHub App, scoped to `Contents: Read & write` on that one repository. See [`src/lib/githubApp.ts`](src/lib/githubApp.ts).
 
 ## API
 
@@ -55,9 +42,7 @@ POST /webhook/github
 GET /feed.json
 ```
 
-`/api/*` requires an authenticated author session and is rate limited.
-`/feed.json` is public and read-only — this is the only endpoint the
-desktop client ever calls.
+`/api/*` requires an authenticated author session and is rate limited. `/feed.json` is public and read-only — this is the only endpoint the desktop client ever calls.
 
 ## Project layout
 
@@ -85,27 +70,15 @@ src/
 
 ## How a write reaches GitHub
 
-1. An author authenticates via `GET /auth/github` → GitHub OAuth →
-   `GET /auth/github/callback`, which verifies collaborator access on the
-   content repository and issues a signed session cookie.
-2. A request to `/api/posts` (or `/stories`, `/media`) is authenticated by
-   `middleware/auth.ts`, which resolves a fresh installation access token
-   for the App's installation on the content repository.
-3. The route handler validates the payload (`lib/validation.ts`) and calls
-   `lib/github.ts`, which performs a Contents API `PUT`/`DELETE`, creating a
-   real Git commit in the content repository.
-4. GitHub Actions in the content repository validates the change and
-   regenerates `feed.json`.
-5. A `push` webhook notifies this Worker (`routes/webhook.ts`), which
-   purges the edge-cached feed so the next client request fetches the
-   updated `feed.json`.
+1. An author authenticates via `GET /auth/github` → GitHub OAuth → `GET /auth/github/callback`, which verifies collaborator access on the content repository and issues a signed session cookie.
+2. A request to `/api/posts` (or `/stories`, `/media`) is authenticated by `middleware/auth.ts`, which resolves a fresh installation access token for the App's installation on the content repository.
+3. The route handler validates the payload (`lib/validation.ts`) and calls `lib/github.ts`, which performs a Contents API `PUT`/`DELETE`, creating a real Git commit in the content repository.
+4. GitHub Actions in the content repository validates the change and regenerates `feed.json`.
+5. A `push` webhook notifies this Worker (`routes/webhook.ts`), which purges the edge-cached feed so the next client request fetches the updated `feed.json`.
 
 ## How the feed is served
 
-`GET /feed.json` is served from the Cloudflare Cache API. On a cache miss it
-reads `feed.json` from the content repository via an installation token and
-re-populates the cache. Client request volume does not translate 1:1 into
-GitHub API calls.
+`GET /feed.json` is served from the Cloudflare Cache API. On a cache miss it reads `feed.json` from the content repository via an installation token and re-populates the cache. Client request volume does not translate 1:1 into GitHub API calls.
 
 ## Local development
 
@@ -117,9 +90,7 @@ npm run dev
 
 ## Deployment
 
-Configuration lives in [`wrangler.toml`](wrangler.toml). Required secrets
-(set with `wrangler secret put <NAME>`, or as GitHub Actions repository
-secrets for CI/CD):
+Configuration lives in [`wrangler.toml`](wrangler.toml). Required secrets (set with `wrangler secret put <NAME>`, or as GitHub Actions repository secrets for CI/CD):
 
 | Secret                     | Purpose                                    |
 | -------------------------- | ------------------------------------------- |
@@ -142,25 +113,16 @@ npm test
 npm run deploy
 ```
 
-CI (`.github/workflows/ci.yml`) runs typecheck and tests on every pull
-request. `.github/workflows/deploy.yml` deploys to Cloudflare Workers on
-every push to `main`.
+CI (`.github/workflows/ci.yml`) runs typecheck and tests on every pull request. `.github/workflows/deploy.yml` deploys to Cloudflare Workers on every push to `main`.
 
 ## Security notes
 
 - The client never receives a GitHub credential of any kind.
-- Author OAuth tokens are used once, to check repository access, and are
-  never stored.
-- Installation access tokens are cached in KV only for their GitHub-issued
-  lifetime and are never exposed outside this Worker.
-- Webhook requests are rejected unless their `X-Hub-Signature-256` verifies
-  against `GITHUB_WEBHOOK_SECRET`.
-- `/api/*` is rate limited per source IP; `/feed.json` relies on edge
-  caching rather than per-request GitHub calls.
+- Author OAuth tokens are used once, to check repository access, and are never stored.
+- Installation access tokens are cached in KV only for their GitHub-issued lifetime and are never exposed outside this Worker.
+- Webhook requests are rejected unless their `X-Hub-Signature-256` verifies against `GITHUB_WEBHOOK_SECRET`.
+- `/api/*` is rate limited per source IP; `/feed.json` relies on edge caching rather than per-request GitHub calls.
 
 ## Reliability
 
-"Хвилина мовчання" caches the last successfully fetched feed locally and
-falls back to it if `/feed.json` is unreachable. The core minute-of-silence
-functionality of the desktop application never depends on this service
-being available.
+"Хвилина мовчання" caches the last successfully fetched feed locally and falls back to it if `/feed.json` is unreachable. The core minute-of-silence functionality of the desktop application never depends on this service being available.
