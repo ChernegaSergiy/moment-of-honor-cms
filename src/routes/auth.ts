@@ -11,11 +11,28 @@ import { Hono } from 'hono';
 import type { Env } from '../types/env';
 import { createSessionCookie, clearSessionCookie } from '../lib/session';
 import { getContentRepoInstallationId } from '../lib/githubApp';
+import { createOAuthState, verifyOAuthState } from '../lib/oauthState';
+import { parseAllowedOrigins } from '../lib/allowedOrigins';
 
 const auth = new Hono<{ Bindings: Env }>();
 
-auth.get('/github', (c) => {
-  const state = crypto.randomUUID();
+auth.get('/github', async (c) => {
+  const returnTo = c.req.query('return_to');
+  const allowedOrigins = parseAllowedOrigins(c.env.ALLOWED_ORIGINS ?? '');
+
+  if (returnTo) {
+    let returnToOrigin: string;
+    try {
+      returnToOrigin = new URL(returnTo).origin;
+    } catch {
+      return c.json({ error: 'Invalid return_to URL' }, 400);
+    }
+    if (!allowedOrigins.includes(returnToOrigin)) {
+      return c.json({ error: 'return_to origin is not allowed' }, 400);
+    }
+  }
+
+  const state = await createOAuthState(returnTo, c.env.SESSION_SECRET);
   const redirectUri = new URL('/auth/github/callback', c.req.url).toString();
 
   const authorizeUrl = new URL('https://github.com/login/oauth/authorize');
