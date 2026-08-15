@@ -2,7 +2,7 @@
   "name": "moment-of-honor-cms",
   "version": "1.0.0",
   "private": true,
-  "description": "Serverless API and GitHub App for the Moment of Honor CMS",
+  "description": "Serverless API and GitHub App for the Moment of Honor CMS.",
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
