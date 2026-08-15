@@ -20,3 +20,6 @@ id = "REPLACE_WITH_KV_NAMESPACE_ID"
 CONTENT_REPO_OWNER = "ChernegaSergiy"
 CONTENT_REPO_NAME = "moment-of-honor-content"
 CONTENT_REPO_BRANCH = "main"
+# Comma-separated list of origins allowed to make credentialed cross-origin
+# requests (e.g. the moment-of-honor-dashboard deployment).
+ALLOWED_ORIGINS = "REPLACE_WITH_DASHBOARD_ORIGIN"
