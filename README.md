@@ -2,7 +2,7 @@
 
 Serverless API and GitHub App backend for **Moment of Honor**, the content system behind the "Головна" feed in the "Хвилина мовчання" ("Minute of Silence") desktop application.
 
-This repository implements [RFC 0001 — Moment of Honor CMS](docs/RFC-0001-Moment-of-Honor-CMS.md): GitHub stores content, a GitHub App controls author access, this Worker isolates GitHub from the client, and the desktop app consumes a plain JSON feed.
+GitHub stores content, a GitHub App controls author access, this Worker isolates GitHub from the client, and the desktop app consumes a plain JSON feed.
 
 ```text
 Authors ── GitHub OAuth ──▶ This Worker ── GitHub App ──▶ moment-of-honor-content
