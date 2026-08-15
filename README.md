@@ -92,14 +92,14 @@ npm run dev
 
 Configuration lives in [`wrangler.toml`](wrangler.toml). Required secrets (set with `wrangler secret put <NAME>`, or as GitHub Actions repository secrets for CI/CD):
 
-| Secret                     | Purpose                                    |
-| -------------------------- | ------------------------------------------- |
-| `GITHUB_APP_ID`             | GitHub App ID                               |
-| `GITHUB_APP_PRIVATE_KEY`    | GitHub App private key (PEM)                |
-| `GITHUB_APP_CLIENT_ID`      | GitHub App OAuth client ID                  |
-| `GITHUB_APP_CLIENT_SECRET`  | GitHub App OAuth client secret              |
-| `GITHUB_WEBHOOK_SECRET`     | GitHub App webhook secret                   |
-| `SESSION_SECRET`            | HMAC secret for signing session cookies     |
+| Secret | Purpose |
+| --- | --- |
+| `GITHUB_APP_ID` | GitHub App ID |
+| `GITHUB_APP_PRIVATE_KEY` | GitHub App private key (PEM) |
+| `GITHUB_APP_CLIENT_ID` | GitHub App OAuth client ID |
+| `GITHUB_APP_CLIENT_SECRET` | GitHub App OAuth client secret |
+| `GITHUB_WEBHOOK_SECRET` | GitHub App webhook secret |
+| `SESSION_SECRET` | HMAC secret for signing session cookies |
 
 The GitHub App itself needs:
 
