@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import type { Env } from './types/env';
+import { cors } from './middleware/cors';
 import { rateLimit } from './middleware/rateLimit';
 import { requireAuthor } from './middleware/auth';
 import authRoutes from './routes/auth';
@@ -10,6 +11,8 @@ import feedRoutes from './routes/feed';
 import webhookRoutes from './routes/webhook';
 
 const app = new Hono<{ Bindings: Env }>();
+
+app.use('*', cors());
 
 // Public, read-only surface — no auth, no rate limiting beyond edge caching.
 app.route('/feed.json', feedRoutes);
