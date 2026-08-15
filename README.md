@@ -47,7 +47,34 @@ GET /feed.json
 
 `/api/*` requires an authenticated author session and is rate limited. `/feed.json` is public and read-only — this is the only endpoint the desktop client ever calls.
 
-## Project layout
+## Cross-origin clients (CORS)
+
+The API is meant to be called from a separately hosted client — for example
+[`moment-of-honor-dashboard`](https://github.com/ChernegaSergiy/moment-of-honor-dashboard),
+a static site with its own origin. Two things make that work:
+
+- **`ALLOWED_ORIGINS`** (a comma-separated list, set in [`wrangler.toml`](wrangler.toml))
+  is checked by [`middleware/cors.ts`](src/middleware/cors.ts). Only listed
+  origins get `Access-Control-Allow-Origin` echoed back with
+  `Access-Control-Allow-Credentials: true`; every other origin gets no CORS
+  headers at all, so the browser discards the response before any script on
+  that origin can read it. This is what actually restricts credentialed
+  access, not the cookie's `SameSite` attribute below.
+- The session cookie is `SameSite=None; Secure`, which is required for any
+  cross-origin use at all — `Lax` cookies are withheld from cross-origin
+  `fetch()` calls regardless of CORS. Restricting *which* origins can
+  succeed is entirely the job of `ALLOWED_ORIGINS`.
+
+`GET /auth/github` accepts an optional `?return_to=` query parameter — the
+URL to send the author back to after signing in. Its origin must be in
+`ALLOWED_ORIGINS`, and it is carried through GitHub's OAuth `state`
+parameter signed with `SESSION_SECRET` ([`lib/oauthState.ts`](src/lib/oauthState.ts)),
+so it can't be tampered into an open redirect and doubles as CSRF
+protection for the OAuth round-trip. If `return_to` was provided, the
+callback redirects there (with `?authenticated=true&login=<username>`)
+instead of returning a bare JSON confirmation.
+
+
 
 ```text
 src/
