@@ -63,24 +63,24 @@ desktop client ever calls.
 
 ```text
 src/
-├── index.ts              Route tree assembly
-├── routes/
-│   ├── auth.ts            GitHub OAuth login/callback
-│   ├── posts.ts           Post CRUD
-│   ├── stories.ts         Story CRUD
-│   ├── media.ts           Media upload
-│   ├── feed.ts             Public feed.json
-│   └── webhook.ts          GitHub webhook (signature-verified)
-├── middleware/
-│   ├── auth.ts             Session verification + installation token
-│   └── rateLimit.ts        Per-IP fixed-window rate limiting
-├── lib/
-│   ├── githubApp.ts        App JWT signing, installation tokens
-│   ├── github.ts            Contents API (read/write/delete/list)
-│   ├── session.ts           Signed session cookies
-│   ├── feedCache.ts         Edge cache for feed.json
-│   └── validation.ts        Post/story payload validation
-└── types/                  Env bindings and content types
++-- index.ts           # Route tree assembly
++-- routes/
+|   +-- auth.ts        # GitHub OAuth login/callback
+|   +-- posts.ts       # Post CRUD
+|   +-- stories.ts     # Story CRUD
+|   +-- media.ts       # Media upload
+|   +-- feed.ts        # Public feed.json
+|   \-- webhook.ts     # GitHub webhook (signature-verified)
++-- middleware/
+|   +-- auth.ts        # Session verification + installation token
+|   \-- rateLimit.ts   # Per-IP fixed-window rate limiting
++-- lib/
+|   +-- githubApp.ts   # App JWT signing, installation tokens
+|   +-- github.ts      # Contents API (read/write/delete/list)
+|   +-- session.ts     # Signed session cookies
+|   +-- feedCache.ts   # Edge cache for feed.json
+|   \-- validation.ts  # Post/story payload validation
+\-- types/             # Env bindings and content types
 ```
 
 ## How a write reaches GitHub
