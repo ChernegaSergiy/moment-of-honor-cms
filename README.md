@@ -133,7 +133,13 @@ Configuration lives in [`wrangler.toml`](wrangler.toml). Required secrets (set w
 | `GITHUB_APP_CLIENT_ID` | GitHub App OAuth client ID |
 | `GITHUB_APP_CLIENT_SECRET` | GitHub App OAuth client secret |
 | `GITHUB_WEBHOOK_SECRET` | GitHub App webhook secret |
-| `SESSION_SECRET` | HMAC secret for signing session cookies |
+| `SESSION_SECRET` | HMAC secret for signing session cookies and OAuth state |
+
+Plus one non-secret variable in [`wrangler.toml`](wrangler.toml)'s `[vars]`:
+
+| Variable | Purpose |
+| --- | --- |
+| `ALLOWED_ORIGINS` | Comma-separated origins allowed to make credentialed cross-origin requests (e.g. the dashboard's deployed URL) |
 
 The GitHub App itself needs:
 
