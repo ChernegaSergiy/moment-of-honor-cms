@@ -55,8 +55,15 @@ interface GitHubUser {
 
 auth.get('/github/callback', async (c) => {
   const code = c.req.query('code');
+  const stateParam = c.req.query('state');
+
   if (!code) {
     return c.json({ error: 'Missing authorization code' }, 400);
+  }
+
+  const state = stateParam ? await verifyOAuthState(stateParam, c.env.SESSION_SECRET) : null;
+  if (stateParam && !state) {
+    return c.json({ error: 'Invalid or expired OAuth state' }, 400);
   }
 
   const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
