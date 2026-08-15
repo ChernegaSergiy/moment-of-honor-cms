@@ -61,13 +61,17 @@ src/
 |   \-- webhook.ts     # GitHub webhook (signature-verified)
 +-- middleware/
 |   +-- auth.ts        # Session verification + installation token
+|   +-- cors.ts        # CORS for the credentialed dashboard client
 |   \-- rateLimit.ts   # Per-IP fixed-window rate limiting
 +-- lib/
-|   +-- githubApp.ts   # App JWT signing, installation tokens
-|   +-- github.ts      # Contents API (read/write/delete/list)
-|   +-- session.ts     # Signed session cookies
-|   +-- feedCache.ts   # Edge cache for feed.json
-|   \-- validation.ts  # Post/story payload validation
+|   +-- githubApp.ts     # App JWT signing, installation tokens
+|   +-- github.ts         # Contents API (read/write/delete/list)
+|   +-- session.ts         # Signed session cookies
+|   +-- oauthState.ts       # Signed OAuth state (return_to + CSRF nonce)
+|   +-- allowedOrigins.ts    # ALLOWED_ORIGINS parsing
+|   +-- crypto.ts             # Shared base64url / HMAC helpers
+|   +-- feedCache.ts           # Edge cache for feed.json
+|   \-- validation.ts           # Post/story payload validation
 \-- types/             # Env bindings and content types
 ```
 
