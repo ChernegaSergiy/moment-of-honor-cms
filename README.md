@@ -104,7 +104,7 @@ src/
 
 ## How a write reaches GitHub
 
-1. An author authenticates via `GET /auth/github` → GitHub OAuth → `GET /auth/github/callback`, which verifies collaborator access on the content repository and issues a signed session cookie.
+1. An author authenticates via `GET /auth/github` (optionally with `?return_to=`) → GitHub OAuth → `GET /auth/github/callback`, which verifies collaborator access on the content repository, issues a signed session cookie, and redirects back to `return_to` if one was given.
 2. A request to `/api/posts` (or `/stories`, `/media`) is authenticated by `middleware/auth.ts`, which resolves a fresh installation access token for the App's installation on the content repository.
 3. The route handler validates the payload (`lib/validation.ts`) and calls `lib/github.ts`, which performs a Contents API `PUT`/`DELETE`, creating a real Git commit in the content repository.
 4. GitHub Actions in the content repository validates the change and regenerates `feed.json`.
