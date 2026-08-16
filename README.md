@@ -78,28 +78,28 @@ instead of returning a bare JSON confirmation.
 
 ```text
 src/
-+-- index.ts           # Route tree assembly
++-- index.ts               # Route tree assembly
 +-- routes/
-|   +-- auth.ts        # GitHub OAuth login/callback
-|   +-- posts.ts       # Post CRUD
-|   +-- stories.ts     # Story CRUD
-|   +-- media.ts       # Media upload
-|   +-- feed.ts        # Public feed.json
-|   \-- webhook.ts     # GitHub webhook (signature-verified)
+|   +-- auth.ts            # GitHub OAuth login/callback
+|   +-- posts.ts           # Post CRUD
+|   +-- stories.ts         # Story CRUD
+|   +-- media.ts           # Media upload
+|   +-- feed.ts            # Public feed.json
+|   \-- webhook.ts         # GitHub webhook (signature-verified)
 +-- middleware/
-|   +-- auth.ts        # Session verification + installation token
-|   +-- cors.ts        # CORS for the credentialed dashboard client
-|   \-- rateLimit.ts   # Per-IP fixed-window rate limiting
+|   +-- auth.ts            # Session verification + installation token
+|   +-- cors.ts            # CORS for the credentialed dashboard client
+|   \-- rateLimit.ts       # Per-IP fixed-window rate limiting
 +-- lib/
-|   +-- githubApp.ts     # App JWT signing, installation tokens
-|   +-- github.ts         # Contents API (read/write/delete/list)
+|   +-- githubApp.ts       # App JWT signing, installation tokens
+|   +-- github.ts          # Contents API (read/write/delete/list)
 |   +-- session.ts         # Signed session cookies
-|   +-- oauthState.ts       # Signed OAuth state (return_to + CSRF nonce)
-|   +-- allowedOrigins.ts    # ALLOWED_ORIGINS parsing
-|   +-- crypto.ts             # Shared base64url / HMAC helpers
-|   +-- feedCache.ts           # Edge cache for feed.json
-|   \-- validation.ts           # Post/story payload validation
-\-- types/             # Env bindings and content types
+|   +-- oauthState.ts      # Signed OAuth state (return_to + CSRF nonce)
+|   +-- allowedOrigins.ts  # ALLOWED_ORIGINS parsing
+|   +-- crypto.ts          # Shared base64url / HMAC helpers
+|   +-- feedCache.ts       # Edge cache for feed.json
+|   \-- validation.ts      # Post/story payload validation
+\-- types/                 # Env bindings and content types
 ```
 
 ## How a write reaches GitHub
