@@ -31,6 +31,20 @@ interface ContentsGetResponse {
   encoding: 'base64';
 }
 
+function decodeBase64(base64: string): string {
+  const binary = atob(base64.replace(/\\n/g, ''));
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+
+function encodeBase64(text: string): string {
+  const bytes = new TextEncoder().encode(text);
+  let binary = '';
+  for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+  return btoa(binary);
+}
+
 /** Reads and base64-decodes a file. Returns null if it does not exist. */
 export async function readFile(
   env: Env,
@@ -47,7 +61,7 @@ export async function readFile(
   }
 
   const data = (await response.json()) as ContentsGetResponse;
-  return { content: atob(data.content.replace(/\n/g, '')), sha: data.sha };
+  return { content: decodeBase64(data.content), sha: data.sha };
 }
 
 /** Creates a file, or updates it if `sha` (of the current version) is provided. */
@@ -63,7 +77,7 @@ export async function writeFile(
 ): Promise<void> {
   const body: Record<string, unknown> = {
     message,
-    content: btoa(content),
+    content: encodeBase64(content),
     branch: env.CONTENT_REPO_BRANCH,
     committer: { name: authorName, email: authorEmail },
   };
