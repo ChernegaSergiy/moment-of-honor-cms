@@ -76,9 +76,18 @@ auth.get('/github/callback', async (c) => {
     }),
   });
 
+  const errorResponse = (msg: string, status: 400 | 401 | 403) => {
+    if (state?.returnTo) {
+      const redirectUrl = new URL(state.returnTo);
+      redirectUrl.searchParams.set('error', msg);
+      return c.redirect(redirectUrl.toString(), 302);
+    }
+    return c.json({ error: msg }, status);
+  };
+
   const tokenData = (await tokenResponse.json()) as OAuthTokenResponse;
   if (!tokenData.access_token) {
-    return c.json({ error: 'GitHub OAuth exchange failed' }, 401);
+    return errorResponse('GitHub OAuth exchange failed', 401);
   }
 
   const userResponse = await fetch('https://api.github.com/user', {
@@ -90,7 +99,7 @@ auth.get('/github/callback', async (c) => {
   });
 
   if (!userResponse.ok) {
-    return c.json({ error: 'Failed to fetch GitHub user' }, 401);
+    return errorResponse('Failed to fetch GitHub user', 401);
   }
 
   const user = (await userResponse.json()) as GitHubUser;
@@ -103,7 +112,7 @@ auth.get('/github/callback', async (c) => {
   try {
     installationId = await getContentRepoInstallationId(c.env);
   } catch {
-    return c.json({ error: 'Moment of Honor GitHub App is not installed on the content repository' }, 403);
+    return errorResponse('Moment of Honor GitHub App is not installed on the content repository', 403);
   }
 
   const collaboratorCheck = await fetch(
@@ -118,7 +127,7 @@ auth.get('/github/callback', async (c) => {
   );
 
   if (collaboratorCheck.status !== 204) {
-    return c.json({ error: 'You do not have access to the content repository' }, 403);
+    return errorResponse('You do not have access to the content repository', 403);
   }
 
   const cookie = await createSessionCookie(
