@@ -22,4 +22,4 @@ CONTENT_REPO_NAME = "moment-of-honor-content"
 CONTENT_REPO_BRANCH = "main"
 # Comma-separated list of origins allowed to make credentialed cross-origin
 # requests (e.g. the moment-of-honor-dashboard deployment).
-ALLOWED_ORIGINS = "http://localhost:3000,http://localhost:5173,https://moment-of-honor-dashboard.pages.dev"
+ALLOWED_ORIGINS = "http://localhost:3000,http://localhost:5173,https://moment-of-honor-dashboard.pages.dev,https://cms.khvylyna.pp.ua"
