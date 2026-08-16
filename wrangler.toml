@@ -2,6 +2,10 @@ name = "moment-of-honor-cms"
 main = "src/index.ts"
 compatibility_date = "2024-11-01"
 
+routes = [
+  { pattern = "api.khvylyna.pp.ua", custom_domain = true }
+]
+
 # KV namespace used to cache installation access tokens and the generated
 # feed at the edge. Create with: wrangler kv namespace create CACHE
 [[kv_namespaces]]
