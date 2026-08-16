@@ -15,8 +15,8 @@ function base64UrlEncode(data: ArrayBuffer | string): string {
 function pemToArrayBuffer(pem: string): ArrayBuffer {
   const normalized = pem.replace(/\\n/g, '\n');
   const base64 = normalized
-    .replace(/-----BEGIN PRIVATE KEY-----/, '')
-    .replace(/-----END PRIVATE KEY-----/, '')
+    .replace(/-----BEGIN (?:RSA )?PRIVATE KEY-----/, '')
+    .replace(/-----END (?:RSA )?PRIVATE KEY-----/, '')
     .replace(/\s+/g, '');
   const binary = atob(base64);
   const bytes = new Uint8Array(binary.length);
