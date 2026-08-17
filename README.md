@@ -38,8 +38,8 @@ POST   /api/stories
 PUT    /api/stories/:id
 DELETE /api/stories/:id
 
-GET  /api/media
-POST /api/media
+GET    /api/media
+POST   /api/media
 DELETE /api/media
 ```
 
