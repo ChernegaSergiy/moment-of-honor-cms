@@ -12,7 +12,7 @@ const stories = new Hono<{
   Variables: { author: { login: string; id: number }; installationToken: string };
 }>();
 
-const AUTHOR_EMAIL_DOMAIN = 'users.noreply.moment-of-honor.dev';
+const AUTHOR_EMAIL_DOMAIN = 'users.noreply.github.com';
 
 function storyPath(id: string) {
   return `content/stories/${id}.json`;
@@ -67,7 +67,7 @@ stories.post('/', async (c) => {
     `${JSON.stringify(story, null, 2)}\n`,
     `Create story: ${id}`,
     author.login,
-    `${author.login}@${AUTHOR_EMAIL_DOMAIN}`,
+    `${author.id}+${author.login}@${AUTHOR_EMAIL_DOMAIN}`,
   );
 
   return c.json(story, 201);
@@ -99,7 +99,7 @@ stories.put('/:id', async (c) => {
     `${JSON.stringify(story, null, 2)}\n`,
     `Update story: ${id}`,
     author.login,
-    `${author.login}@${AUTHOR_EMAIL_DOMAIN}`,
+    `${author.id}+${author.login}@${AUTHOR_EMAIL_DOMAIN}`,
     existing.sha,
   );
 
@@ -120,7 +120,7 @@ stories.delete('/:id', async (c) => {
     storyPath(id),
     `Delete story: ${id}`,
     author.login,
-    `${author.login}@${AUTHOR_EMAIL_DOMAIN}`,
+    `${author.id}+${author.login}@${AUTHOR_EMAIL_DOMAIN}`,
     existing.sha,
   );
 

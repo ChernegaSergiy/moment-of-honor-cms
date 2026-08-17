@@ -14,7 +14,7 @@ const posts = new Hono<{
   Variables: { author: { login: string; id: number }; installationToken: string };
 }>();
 
-const AUTHOR_EMAIL_DOMAIN = 'users.noreply.moment-of-honor.dev';
+const AUTHOR_EMAIL_DOMAIN = 'users.noreply.github.com';
 
 function postPath(id: string) {
   return `content/posts/${id}.json`;
@@ -55,7 +55,7 @@ posts.post('/', async (c) => {
     `${JSON.stringify(post, null, 2)}\n`,
     `Create post: ${post.title}`,
     author.login,
-    `${author.login}@${AUTHOR_EMAIL_DOMAIN}`,
+    `${author.id}+${author.login}@${AUTHOR_EMAIL_DOMAIN}`,
   );
 
   return c.json(post, 201);
@@ -97,7 +97,7 @@ posts.put('/:id', async (c) => {
     `${JSON.stringify(post, null, 2)}\n`,
     `Update post: ${post.title}`,
     author.login,
-    `${author.login}@${AUTHOR_EMAIL_DOMAIN}`,
+    `${author.id}+${author.login}@${AUTHOR_EMAIL_DOMAIN}`,
     existing.sha,
   );
 
@@ -118,7 +118,7 @@ posts.delete('/:id', async (c) => {
     postPath(id),
     `Delete post: ${id}`,
     author.login,
-    `${author.login}@${AUTHOR_EMAIL_DOMAIN}`,
+    `${author.id}+${author.login}@${AUTHOR_EMAIL_DOMAIN}`,
     existing.sha,
   );
 
