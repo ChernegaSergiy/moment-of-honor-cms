@@ -104,6 +104,14 @@ media.delete('/', async (c) => {
     return c.json({ error: 'Invalid media path' }, 400);
   }
   
+  const dirPath = path.substring(0, path.lastIndexOf('/'));
+  const entries = await listDirectory(c.env, token, dirPath);
+  const fileEntry = entries.find((e) => e.path === path);
+  
+  if (!fileEntry) {
+    return c.json({ error: 'File not found' }, 404);
+  }
+  
   try {
     await deleteFile(
       c.env,
@@ -111,13 +119,11 @@ media.delete('/', async (c) => {
       path,
       `Delete media: ${path.split('/').pop()}`,
       author.login,
-      `${author.id}+${author.login}@${AUTHOR_EMAIL_DOMAIN}`
+      `${author.id}+${author.login}@${AUTHOR_EMAIL_DOMAIN}`,
+      fileEntry.sha
     );
     return c.json({ success: true });
   } catch (err: any) {
-    if (err.message?.includes('Not Found')) {
-      return c.json({ error: 'File not found' }, 404);
-    }
     throw err;
   }
 });
