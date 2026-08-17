@@ -39,7 +39,15 @@ media.get('/', async (c) => {
 
   for (const k of kindsToFetch) {
     const entries = await listDirectory(c.env, token, `media/${k}`);
-    paths.push(...entries.filter((e) => e.type === 'file').map((e) => e.path));
+    paths.push(
+      ...entries
+        .filter((e) => {
+          if (e.type !== 'file') return false;
+          const ext = e.name.split('.').pop()?.toLowerCase() ?? '';
+          return ALLOWED_EXTENSIONS.has(ext);
+        })
+        .map((e) => e.path)
+    );
   }
 
   return c.json(paths);
