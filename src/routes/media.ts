@@ -4,7 +4,7 @@
 
 import { Hono } from 'hono';
 import type { Env } from '../types/env';
-import { writeFile } from '../lib/github';
+import { writeFile, listDirectory } from '../lib/github';
 
 const media = new Hono<{
   Bindings: Env;
@@ -25,6 +25,25 @@ function bufferToBinaryString(buffer: ArrayBuffer): string {
   }
   return binary;
 }
+
+media.get('/', async (c) => {
+  const token = c.get('installationToken');
+  const kind = c.req.query('kind');
+
+  if (kind && !ALLOWED_KINDS.has(kind)) {
+    return c.json({ error: '"kind" must be one of: posts, stories' }, 400);
+  }
+
+  const paths: string[] = [];
+  const kindsToFetch = kind ? [kind] : Array.from(ALLOWED_KINDS);
+
+  for (const k of kindsToFetch) {
+    const entries = await listDirectory(c.env, token, `media/${k}`);
+    paths.push(...entries.filter((e) => e.type === 'file').map((e) => e.path));
+  }
+
+  return c.json(paths);
+});
 
 media.post('/', async (c) => {
   const author = c.get('author');
