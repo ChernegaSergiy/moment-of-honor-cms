@@ -8,6 +8,7 @@ import type { Env } from '../types/env';
 import type { Post } from '../types/content';
 import { readFile, writeFile, deleteFile, listDirectory } from '../lib/github';
 import { validatePostPayload, isValidPostId } from '../lib/validation';
+import { getJsonBody } from '../lib/waf';
 
 const posts = new Hono<{
   Bindings: Env;
@@ -40,7 +41,7 @@ posts.post('/', async (c) => {
 
   let payload;
   try {
-    payload = validatePostPayload(await c.req.json());
+    payload = validatePostPayload(await getJsonBody(c));
   } catch (err) {
     return c.json({ error: (err as Error).message }, 400);
   }
@@ -83,7 +84,7 @@ posts.put('/:id', async (c) => {
 
   let payload;
   try {
-    payload = validatePostPayload(await c.req.json());
+    payload = validatePostPayload(await getJsonBody(c));
   } catch (err) {
     return c.json({ error: (err as Error).message }, 400);
   }
