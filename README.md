@@ -40,6 +40,7 @@ DELETE /api/stories/:id
 
 GET  /api/media
 POST /api/media
+DELETE /api/media
 ```
 
 `/api/*` requires an authenticated author session and is rate limited.
