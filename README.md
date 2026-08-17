@@ -5,13 +5,13 @@
 
 Serverless API and GitHub App backend for **Moment of Honor**, the content system behind the "Головна" feed in the "Хвилина мовчання" ("Minute of Silence") desktop application.
 
-GitHub stores content, a GitHub App controls author access, this Worker isolates GitHub from the client, and the desktop app consumes a plain JSON feed.
+GitHub stores content, a GitHub App controls author access, and this Worker acts as a control plane for the CMS API. The public feed itself is served entirely independently via Cloudflare Pages static hosting.
 
 ```text
 Authors ── GitHub OAuth ──▶ This Worker ── GitHub App ──▶ moment-of-honor-content
-                                  │
-                                  ▼
-                            GET /feed.json ──▶ «Хвилина мовчання»
+                                                                  │
+                                                                  ▼
+«Хвилина мовчання» ◀── GET feed.khvylyna.pp.ua ── Cloudflare Pages
 ```
 
 Content itself — posts, stories, media, and the generated `feed.json` — lives in the separate [`moment-of-honor-content`](https://github.com/ChernegaSergiy/moment-of-honor-content) repository, which this Worker reads from and writes to via the GitHub Contents API.
@@ -39,13 +39,9 @@ PUT    /api/stories/:id
 DELETE /api/stories/:id
 
 POST /api/media
-
-POST /webhook/github
-
-GET /feed.json
 ```
 
-`/api/*` requires an authenticated author session and is rate limited. `/feed.json` is public and read-only — this is the only endpoint the desktop client ever calls.
+`/api/*` requires an authenticated author session and is rate limited.
 
 ## Cross-origin clients (CORS)
 
@@ -74,8 +70,6 @@ protection for the OAuth round-trip. If `return_to` was provided, the
 callback redirects there (with `?authenticated=true&login=<username>`)
 instead of returning a bare JSON confirmation.
 
-
-
 ```text
 src/
 +-- index.ts               # Route tree assembly
@@ -83,9 +77,7 @@ src/
 |   +-- auth.ts            # GitHub OAuth login/callback
 |   +-- posts.ts           # Post CRUD
 |   +-- stories.ts         # Story CRUD
-|   +-- media.ts           # Media upload
-|   +-- feed.ts            # Public feed.json
-|   \-- webhook.ts         # GitHub webhook (signature-verified)
+|   \-- media.ts           # Media upload
 +-- middleware/
 |   +-- auth.ts            # Session verification + installation token
 |   +-- cors.ts            # CORS for the credentialed dashboard client
@@ -97,7 +89,6 @@ src/
 |   +-- oauthState.ts      # Signed OAuth state (return_to + CSRF nonce)
 |   +-- allowedOrigins.ts  # ALLOWED_ORIGINS parsing
 |   +-- crypto.ts          # Shared base64url / HMAC helpers
-|   +-- feedCache.ts       # Edge cache for feed.json
 |   \-- validation.ts      # Post/story payload validation
 \-- types/                 # Env bindings and content types
 ```
@@ -107,12 +98,7 @@ src/
 1. An author authenticates via `GET /auth/github` (optionally with `?return_to=`) → GitHub OAuth → `GET /auth/github/callback`, which verifies collaborator access on the content repository, issues a signed session cookie, and redirects back to `return_to` if one was given.
 2. A request to `/api/posts` (or `/stories`, `/media`) is authenticated by `middleware/auth.ts`, which resolves a fresh installation access token for the App's installation on the content repository.
 3. The route handler validates the payload (`lib/validation.ts`) and calls `lib/github.ts`, which performs a Contents API `PUT`/`DELETE`, creating a real Git commit in the content repository.
-4. GitHub Actions in the content repository validates the change and regenerates `feed.json`.
-5. A `push` webhook notifies this Worker (`routes/webhook.ts`), which purges the edge-cached feed so the next client request fetches the updated `feed.json`.
-
-## How the feed is served
-
-`GET /feed.json` is served from the Cloudflare Cache API. On a cache miss it reads `feed.json` from the content repository via an installation token and re-populates the cache. Client request volume does not translate 1:1 into GitHub API calls.
+4. GitHub Actions in the content repository validates the change, regenerates `feed.json`, and deploys the generated files directly to Cloudflare Pages static hosting.
 
 ## Local development
 
@@ -132,7 +118,6 @@ Configuration lives in [`wrangler.toml`](wrangler.toml). Required secrets (set w
 | `GITHUB_APP_PRIVATE_KEY` | GitHub App private key (PEM) |
 | `GITHUB_APP_CLIENT_ID` | GitHub App OAuth client ID |
 | `GITHUB_APP_CLIENT_SECRET` | GitHub App OAuth client secret |
-| `GITHUB_WEBHOOK_SECRET` | GitHub App webhook secret |
 | `SESSION_SECRET` | HMAC secret for signing session cookies and OAuth state |
 
 Plus one non-secret variable in [`wrangler.toml`](wrangler.toml)'s `[vars]`:
@@ -144,7 +129,6 @@ Plus one non-secret variable in [`wrangler.toml`](wrangler.toml)'s `[vars]`:
 The GitHub App itself needs:
 
 - **Repository permissions:** `Contents: Read & write`
-- **Webhook events:** `push` (scoped to the content repository)
 - **Installed on:** the `moment-of-honor-content` repository only
 
 ```bash
@@ -159,15 +143,14 @@ CI (`.github/workflows/ci.yml`) runs typecheck and tests on every pull request. 
 
 - The client never receives a GitHub credential of any kind.
 - Author OAuth tokens are used once, to check repository access, and are never stored.
-- Installation access tokens are cached in KV only for their GitHub-issued lifetime and are never exposed outside this Worker.
-- Webhook requests are rejected unless their `X-Hub-Signature-256` verifies against `GITHUB_WEBHOOK_SECRET`.
-- `/api/*` is rate limited per source IP; `/feed.json` relies on edge caching rather than per-request GitHub calls.
+- Installation access tokens are cached in-memory only for their GitHub-issued lifetime and are never exposed outside this Worker.
+- `/api/*` is rate limited per source IP; public clients fetching the feed do not touch this API.
 - Credentialed cross-origin access is limited to origins in `ALLOWED_ORIGINS`; every other origin gets no CORS headers and can't read a response even if it guesses correctly. See [Cross-origin clients (CORS)](#cross-origin-clients-cors).
 - `return_to` in the OAuth flow is signed and origin-checked against `ALLOWED_ORIGINS`, so it can't be turned into an open redirect.
 
 ## Reliability
 
-"Хвилина мовчання" caches the last successfully fetched feed locally and falls back to it if `/feed.json` is unreachable. The core minute-of-silence functionality of the desktop application never depends on this service being available.
+"Хвилина мовчання" caches the last successfully fetched feed locally and falls back to it if the feed URL is unreachable. The core minute-of-silence functionality of the desktop application never depends on this service being available.
 
 ## Contributing
 
