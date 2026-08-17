@@ -4,7 +4,7 @@
 
 import { Hono } from 'hono';
 import type { Env } from '../types/env';
-import { writeFile, listDirectory } from '../lib/github';
+import { writeFile, listDirectory, deleteFile } from '../lib/github';
 
 const media = new Hono<{
   Bindings: Env;
@@ -88,6 +88,38 @@ media.post('/', async (c) => {
   );
 
   return c.json({ path }, 201);
+});
+
+media.delete('/', async (c) => {
+  const author = c.get('author');
+  const token = c.get('installationToken');
+  
+  const body = await c.req.json().catch(() => null);
+  if (!body || typeof body.path !== 'string') {
+    return c.json({ error: 'Missing or invalid "path"' }, 400);
+  }
+  const path = body.path;
+  
+  if (!path.startsWith('media/posts/') && !path.startsWith('media/stories/')) {
+    return c.json({ error: 'Invalid media path' }, 400);
+  }
+  
+  try {
+    await deleteFile(
+      c.env,
+      token,
+      path,
+      `Delete media: ${path.split('/').pop()}`,
+      author.login,
+      `${author.id}+${author.login}@${AUTHOR_EMAIL_DOMAIN}`
+    );
+    return c.json({ success: true });
+  } catch (err: any) {
+    if (err.message?.includes('Not Found')) {
+      return c.json({ error: 'File not found' }, 404);
+    }
+    throw err;
+  }
 });
 
 export default media;
