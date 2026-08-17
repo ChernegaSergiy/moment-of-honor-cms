@@ -6,6 +6,7 @@ import type { Env } from '../types/env';
 import type { Story } from '../types/content';
 import { readFile, writeFile, deleteFile, listDirectory } from '../lib/github';
 import { validateStoryPayload, isValidStoryId } from '../lib/validation';
+import { getJsonBody } from '../lib/waf';
 
 const stories = new Hono<{
   Bindings: Env;
@@ -47,7 +48,7 @@ stories.post('/', async (c) => {
 
   let payload;
   try {
-    payload = validateStoryPayload(await c.req.json());
+    payload = validateStoryPayload(await getJsonBody(c));
   } catch (err) {
     return c.json({ error: (err as Error).message }, 400);
   }
@@ -85,7 +86,7 @@ stories.put('/:id', async (c) => {
 
   let payload;
   try {
-    payload = validateStoryPayload(await c.req.json());
+    payload = validateStoryPayload(await getJsonBody(c));
   } catch (err) {
     return c.json({ error: (err as Error).message }, 400);
   }
