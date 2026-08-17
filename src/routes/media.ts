@@ -82,17 +82,20 @@ media.post('/', async (c) => {
 
   const buffer = await file.arrayBuffer();
   const binaryContent = bufferToBinaryString(buffer);
+  const base64Content = btoa(binaryContent);
 
-  // writeFile base64-encodes its `content` argument for us, so we pass the
-  // raw binary string here rather than pre-encoding it.
+  // We manually base64-encode binary content to prevent TextEncoder corruption
+  // in writeFile, passing encode=false.
   await writeFile(
     c.env,
     token,
     path,
-    binaryContent,
+    base64Content,
     `Add media: ${filename}`,
     author.login,
     `${author.id}+${author.login}@${AUTHOR_EMAIL_DOMAIN}`,
+    undefined,
+    false,
   );
 
   return c.json({ path }, 201);

@@ -74,10 +74,11 @@ export async function writeFile(
   authorName: string,
   authorEmail: string,
   sha?: string,
+  encode = true,
 ): Promise<void> {
   const body: Record<string, unknown> = {
     message,
-    content: encodeBase64(content),
+    content: encode ? encodeBase64(content) : content,
     branch: env.CONTENT_REPO_BRANCH,
     committer: { name: authorName, email: authorEmail },
   };
