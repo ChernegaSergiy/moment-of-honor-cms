@@ -1,11 +1,9 @@
 export interface Env {
   CACHE: KVNamespace;
-
   GITHUB_APP_ID: string;
   GITHUB_APP_PRIVATE_KEY: string;
   GITHUB_APP_CLIENT_ID: string;
   GITHUB_APP_CLIENT_SECRET: string;
-  GITHUB_WEBHOOK_SECRET: string;
   SESSION_SECRET: string;
 
   CONTENT_REPO_OWNER: string;

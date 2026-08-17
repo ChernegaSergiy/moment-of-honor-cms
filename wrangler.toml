@@ -6,8 +6,7 @@ routes = [
   { pattern = "api.khvylyna.pp.ua", custom_domain = true }
 ]
 
-# KV namespace used to cache installation access tokens and the generated
-# feed at the edge. Create with: wrangler kv namespace create CACHE
+# KV namespace used to cache rate limit counters.
 [[kv_namespaces]]
 binding = "CACHE"
 id = "607452151cb0495c97eaf9ef7402b33f"

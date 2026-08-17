@@ -63,17 +63,17 @@ interface InstallationTokenResponse {
   expires_at: string;
 }
 
+let cachedToken: { token: string; expiresAt: number } | null = null;
+let cachedInstallationId: string | null = null;
+
 /**
  * Returns a cached installation access token for the App's installation on
  * the content repository, requesting a new one from GitHub when the cached
  * token is missing or close to expiry.
  */
 export async function getInstallationToken(env: Env, installationId: string): Promise<string> {
-  const cacheKey = `installation-token:${installationId}`;
-  const cached = await env.CACHE.get<InstallationTokenResponse>(cacheKey, 'json');
-
-  if (cached && new Date(cached.expires_at).getTime() - Date.now() > 60_000) {
-    return cached.token;
+  if (cachedToken && cachedToken.expiresAt - Date.now() > 60_000) {
+    return cachedToken.token;
   }
 
   const appJwt = await createAppJwt(env);
@@ -95,12 +95,11 @@ export async function getInstallationToken(env: Env, installationId: string): Pr
   }
 
   const data = (await response.json()) as InstallationTokenResponse;
-
-  const ttlSeconds = Math.max(
-    60,
-    Math.floor((new Date(data.expires_at).getTime() - Date.now()) / 1000) - 30,
-  );
-  await env.CACHE.put(cacheKey, JSON.stringify(data), { expirationTtl: ttlSeconds });
+  
+  cachedToken = {
+    token: data.token,
+    expiresAt: new Date(data.expires_at).getTime(),
+  };
 
   return data.token;
 }
@@ -110,9 +109,7 @@ export async function getInstallationToken(env: Env, installationId: string): Pr
  * content repository. Cached for an hour since installations rarely change.
  */
 export async function getContentRepoInstallationId(env: Env): Promise<string> {
-  const cacheKey = `installation-id:${env.CONTENT_REPO_OWNER}/${env.CONTENT_REPO_NAME}`;
-  const cached = await env.CACHE.get(cacheKey);
-  if (cached) return cached;
+  if (cachedInstallationId) return cachedInstallationId;
 
   const appJwt = await createAppJwt(env);
   const response = await fetch(
@@ -132,7 +129,7 @@ export async function getContentRepoInstallationId(env: Env): Promise<string> {
   }
 
   const data = (await response.json()) as { id: number };
-  await env.CACHE.put(cacheKey, String(data.id), { expirationTtl: 3600 });
+  cachedInstallationId = String(data.id);
 
-  return String(data.id);
+  return cachedInstallationId;
 }

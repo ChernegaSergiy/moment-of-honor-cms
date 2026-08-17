@@ -7,18 +7,10 @@ import authRoutes from './routes/auth';
 import postsRoutes from './routes/posts';
 import storiesRoutes from './routes/stories';
 import mediaRoutes from './routes/media';
-import feedRoutes from './routes/feed';
-import webhookRoutes from './routes/webhook';
 
 const app = new Hono<{ Bindings: Env }>();
 
 app.use('*', cors());
-
-// Public, read-only surface — no auth, no rate limiting beyond edge caching.
-app.route('/feed.json', feedRoutes);
-
-// GitHub webhook — authenticated via signature verification, not sessions.
-app.route('/webhook/github', webhookRoutes);
 
 // Author-facing OAuth flow.
 app.route('/auth', authRoutes);
