@@ -11,7 +11,7 @@ const media = new Hono<{
   Variables: { author: { login: string; id: number }; installationToken: string };
 }>();
 
-const AUTHOR_EMAIL_DOMAIN = 'users.noreply.moment-of-honor.dev';
+const AUTHOR_EMAIL_DOMAIN = 'users.noreply.github.com';
 const ALLOWED_KINDS = new Set(['posts', 'stories']);
 const ALLOWED_EXTENSIONS = new Set(['jpg', 'jpeg', 'png', 'webp', 'mp4']);
 const MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024;
@@ -65,7 +65,7 @@ media.post('/', async (c) => {
     binaryContent,
     `Add media: ${filename}`,
     author.login,
-    `${author.login}@${AUTHOR_EMAIL_DOMAIN}`,
+    `${author.id}+${author.login}@${AUTHOR_EMAIL_DOMAIN}`,
   );
 
   return c.json({ path }, 201);
